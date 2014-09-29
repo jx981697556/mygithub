@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--将该脚本加入spring配置文件中      资源服务<import resource="classpath:com/bk/eserver/config/EserverServerContext.xml"></import> -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	<!-- 资源服务分类中间表Dao实现 -->
+	<bean id="eserver_re_catalog_serverDaoId"
+		class="com.bk.eserver.dao.EserverReCatalogServerDao">
+		<property name="sessionFatory">
+			<ref bean="sessionFactory" />
+		</property>
+		<property name="sqlTools">
+			<bean id="EserverReCatalogServer_sqlTool" class="com.farm.core.sql.utils.HibernateSQLTools">
+				<constructor-arg>
+					<ref bean="sessionFactory" />
+				</constructor-arg>
+				<constructor-arg>
+					<bean id="EserverReCatalogServer_object" class="com.bk.eserver.domain.EserverReCatalogServer"></bean>
+				</constructor-arg>
+			</bean>
+		</property>
+	</bean>
+	<!-- 资源服务地图信息Dao实现 -->
+	<bean id="eserver_localDaoId"
+		class="com.bk.eserver.dao.EserverLocalDao">
+		<property name="sessionFatory">
+			<ref bean="sessionFactory" />
+		</property>
+		<property name="sqlTools">
+			<bean id="EserverLocal_sqlTool" class="com.farm.core.sql.utils.HibernateSQLTools">
+				<constructor-arg>
+					<ref bean="sessionFactory" />
+				</constructor-arg>
+				<constructor-arg>
+					<bean id="EserverLocal_object" class="com.bk.eserver.domain.EserverLocal"></bean>
+				</constructor-arg>
+			</bean>
+		</property>
+	</bean>
+	<!-- 资源服务文件Dao实现 -->
+	<bean id="eserver_fileDaoId"
+		class="com.bk.eserver.dao.EserverFileDao">
+		<property name="sessionFatory">
+			<ref bean="sessionFactory" />
+		</property>
+		<property name="sqlTools">
+			<bean id="EserverFile_sqlTool" class="com.farm.core.sql.utils.HibernateSQLTools">
+				<constructor-arg>
+					<ref bean="sessionFactory" />
+				</constructor-arg>
+				<constructor-arg>
+					<bean id="EserverFile_object" class="com.bk.eserver.domain.EserverFile"></bean>
+				</constructor-arg>
+			</bean>
+		</property>
+	</bean>
+	<!-- 资源服务Dao实现 -->
+	<bean id="eserver_serverDaoId"
+		class="com.bk.eserver.dao.EserverServerDao">
+		<property name="sessionFatory">
+			<ref bean="sessionFactory" />
+		</property>
+		<property name="sqlTools">
+			<bean id="EserverServer_sqlTool" class="com.farm.core.sql.utils.HibernateSQLTools">
+				<constructor-arg>
+					<ref bean="sessionFactory" />
+				</constructor-arg>
+				<constructor-arg>
+					<bean id="EserverServer_object" class="com.bk.eserver.domain.EserverServer"></bean>
+				</constructor-arg>
+			</bean>
+		</property>
+	</bean>
+	<!-- Server实现 -->
+	<bean id="eserver_serverServerId"
+		class="com.bk.eserver.server.EserverServerManagerImpl">
+		<property name="eserverServerDao">
+			<ref bean="eserver_serverDaoId" />
+		</property>
+		<property name="eserverFileDao">
+			<ref bean="eserver_fileDaoId" />
+		</property>
+		<property name="eserverLocalDao">
+			<ref bean="eserver_localDaoId" />
+		</property>
+		<property name="eserverReCatalogServerDao">
+			<ref bean="eserver_re_catalog_serverDaoId" />
+		</property>
+	</bean>
+	<!-- Server事务代理类 -->
+	<bean id="eserver_serverProxyId"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="proxyInterfaces">
+			<list>
+				<value>
+					com.bk.eserver.server.EserverServerManagerInter
+				</value>
+			</list>
+		</property>
+		<property name="transactionManager">
+			<ref bean="TransactionManager" />
+		</property>
+		<property name="target">
+			<ref bean="eserver_serverServerId" />
+		</property>
+		<property name="transactionAttributeSource">
+			<ref bean="KEYeserver_serverTRANCACTION" />
+		</property>
+	</bean>
+	<!-- 事务属性声明 -->
+	<bean id="KEYeserver_serverTRANCACTION"
+		class="org.springframework.transaction.interceptor.NameMatchTransactionAttributeSource">
+		<property name="properties">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+</beans>
